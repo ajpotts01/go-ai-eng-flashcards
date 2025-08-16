@@ -1,0 +1,13 @@
+GET http://localhost:8080/todos
+
+###
+POST http://localhost:8080/todos
+Content-Type: application/json
+
+{
+  "title": "Learn Go",
+  "description": "Build a REST API with Go and PostgreSQL"
+}
+###
+
+DELETE http://localhost:8080/todos/5
