@@ -36,7 +36,7 @@ func NewPostgresNoteRepository(dbUrl string) (*PostgresNoteRepository, error) {
 func (r *PostgresNoteRepository) CreateNote(note *models.Note) error {
 	query := `
 	INSERT INTO
-		notes.notes (content)
+		flashcards.notes (content)
 	VALUES ($1)
 	RETURNING id, created_at, updated_at
 	`
@@ -55,7 +55,7 @@ func (r *PostgresNoteRepository) GetNoteById(id int64) (*models.Note, error) {
 	SELECT 
 		id, content, created_at, updated_at
 	FROM
-	    notes.notes
+	    flashcards.notes
 	WHERE
 	    id = $1
 	`
@@ -79,7 +79,7 @@ func (r *PostgresNoteRepository) GetAllNotes() ([]*models.Note, error) {
 	SELECT
 		id, content, created_at, updated_at
 	FROM
-	    notes.notes
+	    flashcards.notes
 	ORDER BY
 	    created_at DESC
 	`
@@ -112,7 +112,7 @@ func (r *PostgresNoteRepository) UpdateNote(id int64, updates map[string]any) er
 		return fmt.Errorf("no updates provided")
 	}
 
-	query := "UPDATE notes.notes SET "
+	query := "UPDATE flashcards.notes SET "
 	args := []any{}
 	argIndex := 1
 
@@ -146,7 +146,7 @@ func (r *PostgresNoteRepository) UpdateNote(id int64, updates map[string]any) er
 }
 
 func (r *PostgresNoteRepository) DeleteNote(id int64) error {
-	query := "DELETE FROM notes.notes WHERE id = $1"
+	query := "DELETE FROM flashcards.notes WHERE id = $1"
 
 	result, err := r.db.Exec(query, id)
 	if err != nil {
