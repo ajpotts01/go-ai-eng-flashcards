@@ -1,0 +1,32 @@
+# GET http://localhost:8080/notes
+GET https://go-ai-eng-flashcards.onrender.com/notes
+
+###
+# POST http://localhost:8080/notes
+POST https://go-ai-eng-flashcards.onrender.com/notes
+Content-Type: application/json
+
+{
+  "content": "Test content"
+}
+###
+
+DELETE https://go-ai-eng-flashcards.onrender.com/notes/2
+#DELETE http://localhost:8080/notes/2
+
+###
+
+GET https://go-ai-eng-flashcards.onrender.com/notes
+
+###
+
+POST https://go-ai-eng-flashcards.onrender.com/notes
+Content-Type: application/json
+
+{
+  "content": "Test content"
+}
+
+###
+
+GET https://go-ai-eng-flashcards.onrender.com/notes/1

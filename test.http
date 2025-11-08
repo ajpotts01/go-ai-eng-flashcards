@@ -11,3 +11,21 @@ Content-Type: application/json
 ###
 
 DELETE http://localhost:8080/todos/5
+
+###
+
+GET https://go-ai-eng-flashcards.onrender.com/todos
+
+###
+
+POST https://go-ai-eng-flashcards.onrender.com/todos
+Content-Type: application/json
+
+{
+  "title": "Learn Go",
+  "description": "Build a REST API with Go and PostgreSQL"
+}
+
+###
+
+GET https://go-ai-eng-flashcards.onrender.com/todos/1
