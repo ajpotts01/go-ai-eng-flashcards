@@ -1,0 +1,168 @@
+==================================================
+Scenario: Initial Turn
+==================================================
+Input Payload:
+{
+  "messages": []
+}
+
+API Output:
+{
+    "messages": [
+        {
+            "role": "assistant",
+            "content": "Alright, let's test your knowledge of English history!\n\nFirst question: In what year did the Norman Conquest, led by William the Conqueror, take place, resulting in the seizure of the English throne?\n"
+        }
+    ]
+}
+
+--------------------------------------------------
+
+==================================================
+Scenario: Correct Answer
+==================================================
+Input Payload:
+{
+  "messages": [
+    {
+      "role": "assistant",
+      "content": "The Kingdom of England is traditionally dated from the rule of Æthelstan from what year?"
+    },
+    {
+      "role": "user",
+      "content": "927"
+    }
+  ]
+}
+
+API Output:
+{
+    "messages": [
+        {
+            "role": "assistant",
+            "content": "The Kingdom of England is traditionally dated from the rule of \u00ef\u00bf\u00bdthelstan from what year?"
+        },
+        {
+            "role": "user",
+            "content": "927"
+        },
+        {
+            "role": "assistant",
+            "content": "That's correct! Well done!\n\nHere's your next question:\n\nWhat event in 1066 resulted in the seizure of the English throne?\n"
+        }
+    ]
+}
+
+--------------------------------------------------
+
+==================================================
+Scenario: Incorrect Answer
+==================================================
+Input Payload:
+{
+  "messages": [
+    {
+      "role": "assistant",
+      "content": "In 1066, the Norman Conquest was led by whom?"
+    },
+    {
+      "role": "user",
+      "content": "King Arthur"
+    }
+  ]
+}
+
+API Output:
+{
+    "messages": [
+        {
+            "role": "assistant",
+            "content": "In 1066, the Norman Conquest was led by whom?"
+        },
+        {
+            "role": "user",
+            "content": "King Arthur"
+        },
+        {
+            "role": "assistant",
+            "content": "That's not quite right. The Norman Conquest was actually led by William the Conqueror.\n\nLet's try another question:\n\nWhen was the Magna Carta signed, and what did it do?\n"
+        }
+    ]
+}
+
+--------------------------------------------------
+
+==================================================
+Scenario: Off-Topic Question
+==================================================
+Input Payload:
+{
+  "messages": [
+    {
+      "role": "assistant",
+      "content": "The Magna Carta was signed by which king in 1215?"
+    },
+    {
+      "role": "user",
+      "content": "What is the weather like in London?"
+    }
+  ]
+}
+
+API Output:
+{
+    "messages": [
+        {
+            "role": "assistant",
+            "content": "The Magna Carta was signed by which king in 1215?"
+        },
+        {
+            "role": "user",
+            "content": "What is the weather like in London?"
+        },
+        {
+            "role": "assistant",
+            "content": "I can't answer that, as it's not related to the notes. But back to the quiz!\n\nThe Magna Carta was signed by which king in 1215?\n"
+        }
+    ]
+}
+
+--------------------------------------------------
+
+==================================================
+Scenario: Gibberish Input
+==================================================
+Input Payload:
+{
+  "messages": [
+    {
+      "role": "assistant",
+      "content": "The Hundred Years War was a series of conflicts between England and which other kingdom?"
+    },
+    {
+      "role": "user",
+      "content": "asdfghjkl"
+    }
+  ]
+}
+
+API Output:
+{
+    "messages": [
+        {
+            "role": "assistant",
+            "content": "The Hundred Years War was a series of conflicts between England and which other kingdom?"
+        },
+        {
+            "role": "user",
+            "content": "asdfghjkl"
+        },
+        {
+            "role": "assistant",
+            "content": "Not quite! The Hundred Years' War was indeed a series of conflicts involving England, but the other main player was the Kingdom of France.\n\nNow, for our next question: In what year did the Norman Conquest, led by William the Conqueror, take place, resulting in the seizure of the English throne?\n"
+        }
+    ]
+}
+
+--------------------------------------------------
+

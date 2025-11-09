@@ -12,9 +12,18 @@ import (
 )
 
 const (
-	systemPrompt       = "You are an expert quiz master. A user will provide you with a series of notes. Your job is to generate a single, concise question based on these notes. The question should test the user's knowledge of the provided information. Do not ask for the notes, just generate the question from the notes provided in the prompt."
-	initialQuizPrompt  = "Generate a quiz question based on these study notes:\n\n%s"
-	conversationPrompt = "Continue this quiz conversation with a follow-up question based on the notes and conversation history.\n\nNotes:\n%s\n\nConversation:\n%s\n\n"
+	systemPrompt = `You are a friendly and engaging quiz master. Your goal is to test the user's knowledge based on a set of notes that will be provided.
+
+Here's how you should behave:
+1.  Start the quiz by asking one question based on the notes.
+2.  When the user provides an answer, evaluate it.
+3.  If the answer is correct, congratulate the user and ask a new, different question from the notes.
+4.  If the answer is incorrect, gently correct them, provide a brief explanation for the correct answer, and then ask a new, different question from the notes.
+5.  If the user asks a question (e.g., "why was that wrong?", "give me a hint"), answer their question before proceeding with the next quiz question.
+6.  Continue the quiz until you have exhausted the topics in the notes.
+7.  Maintain a positive and encouraging tone throughout the conversation.
+8.  Do not go off-topic. All questions and answers should be related to the provided notes.`
+	userPromptTemplate = "Here are my notes:\n\n%s\n\nHere is our conversation so far:\n\n%s"
 )
 
 // QuizService handles the business logic for quiz generation.
@@ -57,18 +66,10 @@ func (s *QuizService) GenerateQuizTurn(currentMessages []models.Message) []model
 
 	var convBuilder strings.Builder
 	for _, m := range currentMessages {
-		convBuilder.WriteString(m.Content)
-		convBuilder.WriteString("\n")
+		convBuilder.WriteString(fmt.Sprintf("%s: %s\n", m.Role, m.Content))
 	}
 
-	var userPrompt string
-	if len(currentMessages) == 0 {
-		s.logger.Info("Generating initial quiz question")
-		userPrompt = fmt.Sprintf(initialQuizPrompt, noteBuilder.String())
-	} else {
-		s.logger.Info("Generating follow-up quiz question for existing conversation")
-		userPrompt = fmt.Sprintf(conversationPrompt, noteBuilder.String(), convBuilder.String())
-	}
+	userPrompt := fmt.Sprintf(userPromptTemplate, noteBuilder.String(), convBuilder.String())
 
 	messages := []llms.MessageContent{
 		llms.TextParts(llms.ChatMessageTypeSystem, systemPrompt),

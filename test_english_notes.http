@@ -1,0 +1,94 @@
+### Create a note about the unification of England
+POST http://localhost:8080/notes
+Content-Type: application/json
+
+{
+  "content": "The Kingdom of England is traditionally dated from the rule of Æthelstan from 927."
+}
+
+### Create a note about the Norman Conquest
+POST http://localhost:8080/notes
+Content-Type: application/json
+
+{
+  "content": "In 1066, the Norman Conquest, led by William the Conqueror, resulted in the seizure of the English throne."
+}
+
+### Create a note about the Magna Carta
+POST http://localhost:8080/notes
+Content-Type: application/json
+
+{
+  "content": "The Magna Carta was signed by King John in 1215, limiting the power of the monarch and establishing that the king was not above the law."
+}
+
+### Create a note about the Hundred Years' War
+POST http://localhost:8080/notes
+Content-Type: application/json
+
+{
+  "content": "The Hundred Years' War was a series of conflicts from 1337 to 1453 between the House of Plantagenet, rulers of the Kingdom of England, and the House of Valois, rulers of the Kingdom of France."
+}
+
+### Create a note about the Wars of the Roses
+POST http://localhost:8080/notes
+Content-Type: application/json
+
+{
+  "content": "The Wars of the Roses (1455–1487) were a series of civil wars fought over control of the English throne between supporters of two rival branches of the royal House of Plantagenet: the House of Lancaster and the House of York."
+}
+
+### Create a note about the Tudor dynasty
+POST http://localhost:8080/notes
+Content-Type: application/json
+
+{
+  "content": "The Tudor dynasty, which included monarchs like Henry VIII and Elizabeth I, ruled the Kingdom of England from 1485 until 1603."
+}
+
+### Create a note about the Acts of Union
+POST http://localhost:8080/notes
+Content-Type: application/json
+
+{
+  "content": "The Kingdom of England was merged with the Kingdom of Scotland in 1707 by the Acts of Union to form the Kingdom of Great Britain."
+}
+
+### Get all notes to verify creation
+GET http://localhost:8080/notes
+
+### Delete note
+DELETE http://localhost:8080/notes/3
+
+### Start quiz
+POST http://localhost:8080/quiz
+Content-Type: application/json
+
+{
+  "messages": []
+}
+
+### Start quiz
+POST http://localhost:8080/quiz
+Content-Type: application/json
+
+{
+  "messages": [
+    {
+      "role": "assistant",
+      "content": "Spanning from the reign of Æthelstan to the Acts of Union, which of the following events occurred earliest in the history of the Kingdom of England?\n"
+    },
+    {
+      "role": "user",
+      "content": "I'm not sure, the question is incomplete."
+    },
+    {
+      "role": "assistant",
+      "content": "Prior to the Tudor dynasty, which conflict significantly weakened the House of Plantagenet and paved the way for their rise to power?\n"
+    },
+    {
+      "role": "user",
+      "content": "The Wars of the Roses."
+    }
+  ]
+}
