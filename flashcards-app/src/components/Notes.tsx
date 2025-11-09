@@ -18,6 +18,9 @@ import {
 import { Edit, Delete, Add } from '@mui/icons-material';
 import { getNotes, createNote, updateNote, deleteNote } from '../services/api';
 import type { Note } from '../types';
+import ReactMarkdown from 'react-markdown';
+
+const MAX_LENGTH = 200; // Sensible default for truncation
 
 const Notes: React.FC = () => {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -25,6 +28,7 @@ const Notes: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [currentNote, setCurrentNote] = useState<Note | null>(null);
   const [newContent, setNewContent] = useState('');
+  const [expandedNotes, setExpandedNotes] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     fetchNotes();
@@ -77,6 +81,18 @@ const Notes: React.FC = () => {
     }
   };
 
+  const toggleExpand = (id: number) => {
+    setExpandedNotes((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <Paper elevation={3} sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -89,23 +105,43 @@ const Notes: React.FC = () => {
         <CircularProgress />
       ) : (
         <List>
-          {notes.map((note) => (
-            <ListItem
-              key={note.id}
-              secondaryAction={
-                <>
-                  <IconButton edge="end" aria-label="edit" onClick={() => handleOpen(note)}>
-                    <Edit />
-                  </IconButton>
-                  <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(note.id)}>
-                    <Delete />
-                  </IconButton>
-                </>
-              }
-            >
-              <ListItemText primary={note.content} secondary={`Last updated: ${new Date(note.updated_at).toLocaleString()}`} />
-            </ListItem>
-          ))}
+          {notes.map((note) => {
+            const isExpanded = expandedNotes.has(note.id);
+            const displayContent =
+              note.content.length > MAX_LENGTH && !isExpanded
+                ? note.content.substring(0, MAX_LENGTH) + '...'
+                : note.content;
+
+            return (
+              <ListItem
+                key={note.id}
+                secondaryAction={
+                  <>
+                    <IconButton edge="end" aria-label="edit" onClick={() => handleOpen(note)}>
+                      <Edit />
+                    </IconButton>
+                    <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(note.id)}>
+                      <Delete />
+                    </IconButton>
+                  </>
+                }
+              >
+                <ListItemText
+                  primary={
+                    <>
+                      <ReactMarkdown>{displayContent}</ReactMarkdown>
+                      {note.content.length > MAX_LENGTH && (
+                        <Button size="small" onClick={() => toggleExpand(note.id)}>
+                          {isExpanded ? 'Read Less' : 'Read More'}
+                        </Button>
+                      )}
+                    </>
+                  }
+                  secondary={`Last updated: ${new Date(note.updated_at).toLocaleString()}`}
+                />
+              </ListItem>
+            );
+          })}
         </List>
       )}
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
