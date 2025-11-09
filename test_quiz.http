@@ -1,0 +1,43 @@
+GET http://localhost:8080/notes
+
+###
+POST http://localhost:8080/quiz
+Content-Type: application/json
+
+{
+  "messages": []
+}
+
+###
+POST http://localhost:8080/quiz
+Content-Type: application/json
+
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "Mitochondria"
+    }
+  ]
+}
+
+###
+
+DELETE http://localhost:8080/notes/2
+
+###
+
+GET http://localhost:8080/notes
+
+###
+
+POST http://localhost:8080/notes
+Content-Type: application/json
+
+{
+  "content": "Test content"
+}
+
+###
+
+GET http://localhost:8080/notes/1

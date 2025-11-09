@@ -1,9 +1,9 @@
 # GET http://localhost:8080/flashcards
-GET https://go-ai-eng-flashcards.onrender.com/flashcards
+GET http://localhost:8080/flashcards
 
 ###
 # POST http://localhost:8080/flashcards
-POST https://go-ai-eng-flashcards.onrender.com/flashcards
+POST http://localhost:8080/flashcards
 Content-Type: application/json
 
 {
@@ -15,11 +15,11 @@ DELETE http://localhost:8080/flashcards/2
 
 ###
 
-GET https://go-ai-eng-flashcards.onrender.com/flashcards
+GET http://localhost:8080/flashcards
 
 ###
 
-POST https://go-ai-eng-flashcards.onrender.com/flashcards
+POST http://localhost:8080/flashcards
 Content-Type: application/json
 
 {
@@ -28,4 +28,4 @@ Content-Type: application/json
 
 ###
 
-GET https://go-ai-eng-flashcards.onrender.com/flashcards/1
+GET http://localhost:8080/flashcards/1

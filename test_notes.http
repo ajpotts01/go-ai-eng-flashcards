@@ -1,9 +1,7 @@
-# GET http://localhost:8080/notes
-GET https://go-ai-eng-flashcards.onrender.com/notes
+GET http://localhost:8080/notes
 
 ###
-# POST http://localhost:8080/notes
-POST https://go-ai-eng-flashcards.onrender.com/notes
+POST http://localhost:8080/notes
 Content-Type: application/json
 
 {
@@ -11,16 +9,15 @@ Content-Type: application/json
 }
 ###
 
-DELETE https://go-ai-eng-flashcards.onrender.com/notes/2
-#DELETE http://localhost:8080/notes/2
+DELETE http://localhost:8080/notes/2
 
 ###
 
-GET https://go-ai-eng-flashcards.onrender.com/notes
+GET http://localhost:8080/notes
 
 ###
 
-POST https://go-ai-eng-flashcards.onrender.com/notes
+POST http://localhost:8080/notes
 Content-Type: application/json
 
 {
@@ -29,4 +26,4 @@ Content-Type: application/json
 
 ###
 
-GET https://go-ai-eng-flashcards.onrender.com/notes/1
+GET http://localhost:8080/notes/1

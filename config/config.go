@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	DatabaseURL string
-	Port        string
+	DatabaseURL  string
+	Port         string
+	GeminiAPIKey string
 }
 
 func Load() *Config {
@@ -18,8 +19,9 @@ func Load() *Config {
 	}
 
 	config := &Config{
-		DatabaseURL: getEnv("DB_URL"),
-		Port:        getEnvWithDefault("PORT", "8080"),
+		DatabaseURL:  getEnv("DB_URL"),
+		Port:         getEnvWithDefault("PORT", "8080"),
+		GeminiAPIKey: getEnv("GEMINI_API_KEY"),
 	}
 
 	return config
