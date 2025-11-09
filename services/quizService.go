@@ -15,7 +15,6 @@ const (
 	systemPrompt       = "You are an expert quiz master. A user will provide you with a series of notes. Your job is to generate a single, concise question based on these notes. The question should test the user's knowledge of the provided information. Do not ask for the notes, just generate the question from the notes provided in the prompt."
 	initialQuizPrompt  = "Generate a quiz question based on these study notes:\n\n%s"
 	conversationPrompt = "Continue this quiz conversation with a follow-up question based on the notes and conversation history.\n\nNotes:\n%s\n\nConversation:\n%s\n\n"
-	userPromptTemplate = "Here are my notes:\n\n%s\n\nPlease generate a quiz question based on these notes."
 )
 
 // QuizService handles the business logic for quiz generation.
