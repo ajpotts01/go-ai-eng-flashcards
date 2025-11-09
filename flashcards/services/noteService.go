@@ -118,9 +118,9 @@ func (s *NoteService) validateCreateRequest(req *models.CreateNoteRequest) error
 		return fmt.Errorf("content is required")
 	}
 
-	if len(content) > 255 {
-		return fmt.Errorf("content cannot exceed 255 characters")
-	}
+	//if len(content) > 255 {
+	//	return fmt.Errorf("content cannot exceed 255 characters")
+	//}
 
 	return nil
 }
