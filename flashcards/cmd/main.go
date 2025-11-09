@@ -11,6 +11,7 @@ import (
 	"go-ai-eng-flashcards/services"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -51,7 +52,6 @@ func main() {
 
 	router := mux.NewRouter()
 
-	router.Use(corsMiddleware)
 	router.Use(jsonMiddleware)
 
 	todoHandler.RegisterRoutes(router)
@@ -63,25 +63,19 @@ func main() {
 	addr := ":" + cfg.Port
 	fmt.Printf("Server starting on port %s\n", cfg.Port)
 
-	if err := http.ListenAndServe(addr, router); err != nil {
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+
+	handler := c.Handler(router)
+
+	if err := http.ListenAndServe(addr, handler); err != nil {
 		logger.Error("Server failed to start", slog.Any("error", err))
 		return
 	}
-}
-
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
 }
 
 func jsonMiddleware(next http.Handler) http.Handler {
