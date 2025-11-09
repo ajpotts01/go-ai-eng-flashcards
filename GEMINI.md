@@ -56,4 +56,48 @@ Both Docker and Supabase CLI must be installed and running for database operatio
 
 ## Development Workflow Guidance
 
+
+
 - After each task is complete, go build the project to verify your work and then fix any issues which come up.
+
+
+
+## Structured Logging
+
+
+
+This project uses the `log/slog` package for structured, leveled logging.
+
+
+
+**Key Principles:**
+
+- **JSON Output:** Logs are formatted as JSON to `os.Stdout` for machine-readability.
+
+- **Dependency Injection:** The `slog.Logger` is created in `main.go` and injected into handlers, services, and repositories.
+
+- **Log Levels:**
+
+    - `INFO`: Used for happy-path events (e.g., start and success of an operation).
+
+    - `ERROR`: Used for errors.
+
+- **Error Logging Strategy:** To avoid redundant logging, errors are logged at two main points:
+
+    1.  **Repository Layer:** When a database operation fails, the error is logged with `slog.Error`.
+
+    2.  **Handler Layer:** When a service returns an error, the handler logs it with `slog.Error` before sending an HTTP error response.
+
+    - Services do **not** log errors from the repository; they simply return them up the call stack.
+
+
+
+**When adding new features, follow this pattern:**
+
+1.  Ensure your new handlers, services, and repositories accept a `*slog.Logger` in their constructor.
+
+2.  Add `INFO` level logs at the beginning and successful completion of each public method.
+
+3.  Log errors from external calls (like databases or other APIs) at the point of failure.
+
+4.  In handlers, log any error received from the service layer before generating the HTTP response.

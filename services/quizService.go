@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go-ai-eng-flashcards/models"
-	"log"
+	"log/slog"
 	"strings"
 
 	"github.com/tmc/langchaingo/llms"
@@ -20,22 +20,27 @@ const (
 type QuizService struct {
 	llm         *googleai.GoogleAI
 	noteService *NoteService
+	logger      *slog.Logger
 }
 
 // NewQuizService creates a new instance of QuizService.
-func NewQuizService(apiKey string, noteService *NoteService) (*QuizService, error) {
+func NewQuizService(apiKey string, noteService *NoteService, logger *slog.Logger) (*QuizService, error) {
+	logger.Info("Initializing QuizService")
 	llm, err := googleai.New(context.Background(), googleai.WithAPIKey(apiKey))
 	if err != nil {
+		logger.Error("Failed to initialize Gemini LLM", slog.Any("error", err))
 		return nil, fmt.Errorf("failed to initialize Gemini LLM: %w", err)
 	}
-	return &QuizService{llm: llm, noteService: noteService}, nil
+	logger.Info("QuizService initialized successfully")
+	return &QuizService{llm: llm, noteService: noteService, logger: logger}, nil
 }
 
 // GenerateQuizTurn adds a new, LLM-generated assistant message to a conversation history.
 func (s *QuizService) GenerateQuizTurn(currentMessages []models.Message) []models.Message {
+	s.logger.Info("Generating quiz turn")
 	allNotes, err := s.noteService.GetAllNotes()
 	if err != nil {
-		log.Printf("Error fetching notes for quiz generation: %v", err)
+		s.logger.Error("Error fetching notes for quiz generation", slog.Any("error", err))
 		assistantMessage := models.Message{
 			Role:    "assistant",
 			Content: "Sorry, I was unable to fetch the notes to generate a question.",
@@ -59,7 +64,7 @@ func (s *QuizService) GenerateQuizTurn(currentMessages []models.Message) []model
 	ctx := context.Background()
 	completion, err := s.llm.GenerateContent(ctx, messages, llms.WithTemperature(0.8))
 	if err != nil {
-		log.Printf("Error generating content from LLM: %v", err)
+		s.logger.Error("Error generating content from LLM", slog.Any("error", err))
 		// Fallback to a generic error message
 		assistantMessage := models.Message{
 			Role:    "assistant",
@@ -78,5 +83,6 @@ func (s *QuizService) GenerateQuizTurn(currentMessages []models.Message) []model
 		Content: generatedContent,
 	}
 
+	s.logger.Info("Quiz turn generated successfully")
 	return append(currentMessages, assistantMessage)
 }

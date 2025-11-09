@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 
 	"go-ai-eng-flashcards/config"
@@ -15,34 +15,39 @@ import (
 
 func main() {
 	cfg := config.Load()
+	logger := config.NewLogger()
 
 	if cfg.DatabaseURL == "" {
-		log.Fatal("DB_URL environment variable is required")
+		logger.Error("DB_URL environment variable is required")
+		return
 	}
 
 	todoRepo, err := db.NewPostgresTodoRepository(cfg.DatabaseURL)
 	if err != nil {
-		log.Fatalf("Failed to initialize database: %v", err)
+		logger.Error("Failed to initialize database", slog.Any("error", err))
+		return
 	}
 	defer todoRepo.Close()
 
-	noteRepo, err := db.NewPostgresNoteRepository(cfg.DatabaseURL)
+	noteRepo, err := db.NewPostgresNoteRepository(cfg.DatabaseURL, logger)
 	if err != nil {
-		log.Fatalf("Failed to initialize note database: %v", err)
+		logger.Error("Failed to initialize note database", slog.Any("error", err))
+		return
 	}
 	defer noteRepo.Close()
 
 	todoService := services.NewTodoService(todoRepo)
 	todoHandler := handlers.NewTodoHandler(todoService)
 
-	noteService := services.NewNoteService(noteRepo)
-	noteHandler := handlers.NewNoteHandler(noteService)
+	noteService := services.NewNoteService(noteRepo, logger)
+	noteHandler := handlers.NewNoteHandler(noteService, logger)
 
-	quizService, err := services.NewQuizService(cfg.GeminiAPIKey, noteService)
+	quizService, err := services.NewQuizService(cfg.GeminiAPIKey, noteService, logger)
 	if err != nil {
-		log.Fatalf("Failed to initialize quiz service: %v", err)
+		logger.Error("Failed to initialize quiz service", slog.Any("error", err))
+		return
 	}
-	quizHandler := handlers.NewQuizHandler(quizService)
+	quizHandler := handlers.NewQuizHandler(quizService, logger)
 
 	router := mux.NewRouter()
 
@@ -59,7 +64,8 @@ func main() {
 	fmt.Printf("Server starting on port %s\n", cfg.Port)
 
 	if err := http.ListenAndServe(addr, router); err != nil {
-		log.Fatalf("Server failed to start: %v", err)
+		logger.Error("Server failed to start", slog.Any("error", err))
+		return
 	}
 }
 

@@ -2,21 +2,23 @@ package services
 
 import (
 	"fmt"
-	"strings"
-
 	"go-ai-eng-flashcards/db"
 	"go-ai-eng-flashcards/models"
+	"log/slog"
+	"strings"
 )
 
 type NoteService struct {
-	repo db.NoteRepository
+	repo   db.NoteRepository
+	logger *slog.Logger
 }
 
-func NewNoteService(repo db.NoteRepository) *NoteService {
-	return &NoteService{repo: repo}
+func NewNoteService(repo db.NoteRepository, logger *slog.Logger) *NoteService {
+	return &NoteService{repo: repo, logger: logger}
 }
 
 func (s *NoteService) CreateNote(req *models.CreateNoteRequest) (*models.Note, error) {
+	s.logger.Info("Attempting to create a new note", slog.Any("content", req.Content))
 	if err := s.validateCreateRequest(req); err != nil {
 		return nil, err
 	}
@@ -26,13 +28,15 @@ func (s *NoteService) CreateNote(req *models.CreateNoteRequest) (*models.Note, e
 	}
 
 	if err := s.repo.CreateNote(note); err != nil {
-		return nil, fmt.Errorf("failed to create note: %w", err)
+		return nil, err
 	}
 
+	s.logger.Info("Note created successfully", slog.Any("note_id", note.ID))
 	return note, nil
 }
 
 func (s *NoteService) GetNoteByID(id int64) (*models.Note, error) {
+	s.logger.Info("Attempting to retrieve note by ID", slog.Any("note_id", id))
 	if id <= 0 {
 		return nil, fmt.Errorf("invalid note ID: %d", id)
 	}
@@ -42,19 +46,23 @@ func (s *NoteService) GetNoteByID(id int64) (*models.Note, error) {
 		return nil, err
 	}
 
+	s.logger.Info("Note retrieved successfully", slog.Any("note_id", note.ID))
 	return note, nil
 }
 
 func (s *NoteService) GetAllNotes() ([]*models.Note, error) {
+	s.logger.Info("Attempting to retrieve all notes")
 	notes, err := s.repo.GetAllNotes()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get notes: %w", err)
+		return nil, err
 	}
 
+	s.logger.Info("All notes retrieved successfully", slog.Any("count", len(notes)))
 	return notes, nil
 }
 
 func (s *NoteService) UpdateNote(id int64, req *models.UpdateNoteRequest) (*models.Note, error) {
+	s.logger.Info("Attempting to update note", slog.Any("note_id", id), slog.Any("updates", req))
 	if id <= 0 {
 		return nil, fmt.Errorf("invalid note ID: %d", id)
 	}
@@ -81,15 +89,23 @@ func (s *NoteService) UpdateNote(id int64, req *models.UpdateNoteRequest) (*mode
 		return nil, err
 	}
 
+	s.logger.Info("Note updated successfully", slog.Any("note_id", id))
 	return s.repo.GetNoteById(id)
 }
 
 func (s *NoteService) DeleteNote(id int64) error {
+	s.logger.Info("Attempting to delete note", slog.Any("note_id", id))
 	if id <= 0 {
 		return fmt.Errorf("invalid note ID: %d", id)
 	}
 
-	return s.repo.DeleteNote(id)
+	err := s.repo.DeleteNote(id)
+	if err != nil {
+		return err
+	}
+
+	s.logger.Info("Note deleted successfully", slog.Any("note_id", id))
+	return nil
 }
 
 func (s *NoteService) validateCreateRequest(req *models.CreateNoteRequest) error {
