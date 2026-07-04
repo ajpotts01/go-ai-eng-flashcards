@@ -17,6 +17,6 @@ export const createNote = (content: string) => apiClient.post<Note>('/notes', { 
 export const updateNote = (id: number, content: string) => apiClient.put<Note>(`/notes/${id}`, { content });
 export const deleteNote = (id: number) => apiClient.delete(`/notes/${id}`);
 
-export const generateQuizTurn = (messages: Message[]) => apiClient.post<{ messages: Message[] }>('/quiz', { messages });
+export const generateQuizTurn = (messages: Message[], note_ids: number[]) => apiClient.post<{ messages: Message[], note_ids: number[] }>('/quiz', { messages, note_ids });
 
 export default apiClient;
