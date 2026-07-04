@@ -12,12 +12,14 @@ import (
 // quizRequest is the expected structure of the request body for the /quiz endpoint.
 // It is defined locally within the handler package.
 type quizRequest struct {
+	NoteIDs  []int            `json:"note_ids"`
 	Messages []models.Message `json:"messages"`
 }
 
 // quizResponse is the structure of the response body for the /quiz endpoint.
 // It is defined locally within the handler package.
 type quizResponse struct {
+	NoteIDs  []int            `json:"note_ids"`
 	Messages []models.Message `json:"messages"`
 }
 
@@ -44,15 +46,21 @@ func (h *QuizHandler) GenerateQuizHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	// Call the service to get the updated message list.
-	updatedMessages := h.service.GenerateQuizTurn(req.Messages)
+	result, err := h.service.GenerateQuizTurn(req.NoteIDs, req.Messages)
+	if err != nil {
+		h.logger.Error("Quiz generation failed: %v", err)
+		h.writeErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	// Prepare the response using the local response struct.
-	res := quizResponse{
-		Messages: updatedMessages,
+	resp := quizResponse{
+		Messages: result.Messages,
+		NoteIDs:  result.NoteIDs,
 	}
 
 	h.logger.Info("Quiz turn generated successfully")
-	h.writeJSONResponse(w, http.StatusOK, res)
+	h.writeJSONResponse(w, http.StatusOK, resp)
 }
 
 func (h *QuizHandler) RegisterRoutes(router *mux.Router) {

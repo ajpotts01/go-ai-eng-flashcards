@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/samber/lo"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/googleai"
 )
@@ -36,30 +37,63 @@ type QuizService struct {
 // NewQuizService creates a new instance of QuizService.
 func NewQuizService(apiKey string, noteService *NoteService, logger *slog.Logger) (*QuizService, error) {
 	logger.Info("Initializing QuizService")
-	llm, err := googleai.New(context.Background(), googleai.WithAPIKey(apiKey))
+	llm, err := googleai.New(context.Background(), googleai.WithAPIKey(apiKey), googleai.WithDefaultModel("gemini-2.5-flash"))
 	if err != nil {
 		logger.Error("Failed to initialize Gemini LLM", slog.Any("error", err))
 		return nil, fmt.Errorf("failed to initialize Gemini LLM: %w", err)
+
 	}
 	logger.Info("QuizService initialized successfully")
 	return &QuizService{llm: llm, noteService: noteService, logger: logger}, nil
 }
 
+type GenerateQuizResult struct {
+	NoteIDs  []int
+	Messages []models.Message
+}
+
 // GenerateQuizTurn adds a new, LLM-generated assistant message to a conversation history.
-func (s *QuizService) GenerateQuizTurn(currentMessages []models.Message) []models.Message {
+func (s *QuizService) GenerateQuizTurn(noteIds []int, currentMessages []models.Message) (*GenerateQuizResult, error) {
 	s.logger.Info("Generating quiz turn")
+
 	allNotes, err := s.noteService.GetAllNotes()
+	var n []int
+	for _, note := range allNotes {
+		n = append(n, note.ID)
+	}
+
+	s.logger.Info(fmt.Sprintf("Provided note IDs: %v", noteIds))
+	s.logger.Info(fmt.Sprintf("All notes: %v", n))
 	if err != nil {
 		s.logger.Error("Error fetching notes for quiz generation", slog.Any("error", err))
 		assistantMessage := models.Message{
 			Role:    "assistant",
 			Content: "Sorry, I was unable to fetch the notes to generate a question.",
 		}
-		return append(currentMessages, assistantMessage)
+		currentMessages = append(currentMessages, assistantMessage)
+		return &GenerateQuizResult{
+			NoteIDs:  noteIds,
+			Messages: currentMessages,
+		}, nil
+	}
+
+	filteredNotes := lo.Filter(allNotes, func(note *models.Note, index int) bool {
+		return lo.Contains(noteIds, note.ID)
+	})
+
+	var fn []int
+	for _, fnote := range filteredNotes {
+		fn = append(fn, fnote.ID)
+	}
+
+	s.logger.Info(fmt.Sprintf("Filtered notes: %v", fn))
+
+	if len(filteredNotes) == 0 {
+		return nil, fmt.Errorf("at least one valid note id is required")
 	}
 
 	var noteBuilder strings.Builder
-	for _, note := range allNotes {
+	for _, note := range filteredNotes {
 		noteBuilder.WriteString(note.Content)
 		noteBuilder.WriteString("\n")
 	}
@@ -85,7 +119,11 @@ func (s *QuizService) GenerateQuizTurn(currentMessages []models.Message) []model
 			Role:    "assistant",
 			Content: "Sorry, I was unable to generate a question at this time.",
 		}
-		return append(currentMessages, assistantMessage)
+		currentMessages = append(currentMessages, assistantMessage)
+		return &GenerateQuizResult{
+			NoteIDs:  noteIds,
+			Messages: currentMessages,
+		}, nil
 	}
 
 	generatedContent := "Sorry, I couldn't generate a question."
@@ -98,6 +136,11 @@ func (s *QuizService) GenerateQuizTurn(currentMessages []models.Message) []model
 		Content: generatedContent,
 	}
 
+	currentMessages = append(currentMessages, assistantMessage)
+
 	s.logger.Info("Quiz turn generated successfully")
-	return append(currentMessages, assistantMessage)
+	return &GenerateQuizResult{
+		NoteIDs:  noteIds,
+		Messages: currentMessages,
+	}, nil
 }
